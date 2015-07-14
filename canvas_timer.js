@@ -13,7 +13,7 @@ timerCanvas.addEventListener('click', function(){window.requestAnimationFrame( m
 
 //  Variables
 var angleIncrement = ( Math.PI*2 / countDown);
-var elements = Math.floor( countDown / 10 );
+var watchElements = Math.floor( countDown / 10 );
 var zeroAngle = (-(Math.PI * 1/2));
 var tLast = 0;
 var iFrame = 0;
@@ -25,7 +25,7 @@ function mainLoop(tStart) {
     if (tStart > (tLast + 100)){
       iFrame++;
       // check if its over
-      if ( countDown.value <= 0 ) {
+      if ( countDown <= 0 ) {
           window.cancelAnimationFrame( stopLoop );
           // Return Value ~ mainLoop hasFinished
           return true;
@@ -33,17 +33,27 @@ function mainLoop(tStart) {
         // Decrease countdown
         countDown--;
         // calculate current digit
-        var digit = new Path2D();
-        digit.moveTo(100,130);
-        var startDigitAngle = zeroAngle + (angleIncrement * (iFrame - 1));
-        var stopDigitAngle = zeroAngle + (angleIncrement * iFrame);
-        digit.arc(100,130,45,startDigitAngle,stopDigitAngle, false);
-        ctx.strokeStyle = "crimson";
-        ctx.stroke(digit);
-        // fade prior digits
-        // --how?
-        // --desaturate all red inside?
+        var startDigitAngle = zeroAngle + (angleIncrement * (iFrame ));
+        var stopDigitAngle = startDigitAngle;
+        // trail
+        ctx.beginPath();
+        ctx.arc(100,130,43,zeroAngle,startDigitAngle,false);
+        ctx.lineTo(100,130);
+        var overlayColor = "rgb(255,"+(600-iFrame*2)+","+(600-iFrame*3)+")";
+        ctx.fillStyle = overlayColor;
+        ctx.fill();
+        ctx.globalCompositeOperation = "source-over";
+        // digit
+        ctx.beginPath();
+        ctx.moveTo(100,130);
+        ctx.arc(100,130,42,startDigitAngle,stopDigitAngle, false);
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = "3";
+        ctx.stroke();
+        // How could I fade out the digit trail?
+
       }
+      tLast = tStart;
     }
 } // End Loop
 
@@ -64,6 +74,7 @@ function mainLoop(tStart) {
 } */
 
 //// draw background
+// --maybe export and copy into canvas? Only watchElements would need to be forewarded-
 // Head
 ctx.beginPath();
 ctx.arc(100,40,26,0,2 * Math.PI ,false);
@@ -111,7 +122,7 @@ ctx.strokeStyle = "black";
 ctx.lineWidth = "0";
 ctx.stroke();
 
-for (var i = 0; i <= elements ; i++) {
+for (var i = 0; i <= watchElements ; i++) {
   if (i % 5 === 0) {
     ctx.strokeStyle = "dimgrey";
     ctx.lineWidth = "2";
@@ -121,8 +132,8 @@ for (var i = 0; i <= elements ; i++) {
   }
   ctx.beginPath();
   ctx.moveTo(100,130);
-  var startAngle = zeroAngle + i * (Math.PI*2/elements);
-  var stopAngle = zeroAngle + (i + 0.05) * (Math.PI*2/elements);
+  var startAngle = zeroAngle + i * (Math.PI*2/watchElements);
+  var stopAngle = zeroAngle + (i + 0.05) * (Math.PI*2/watchElements);
   ctx.arc(100,130,48,startAngle,stopAngle,false);
   ctx.stroke();
 }
