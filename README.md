@@ -1,2 +1,2 @@
 # graphic-JS-countdown
-A simple JavaScirpt countdown solution with graphical html5 canvas feedback.
+A simple JavaScript countdown applet with graphical html5 <canvas> feedback.
