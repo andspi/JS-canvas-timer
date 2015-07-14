@@ -5,7 +5,7 @@
 //// Definitions
 // Set Time
 var countDown = {
-  value: 800 };
+  value: 300 };
   // 300 = 30 seconds
 countDown.defaultValue = countDown.value;
 
@@ -22,6 +22,9 @@ var iFrame = 0;
 
 // The initial Eventlistener. Substitute with whatever Event you need to call the timer.
 timerCanvas.addEventListener('click', function(){window.requestAnimationFrame( mainLoop )}, false);
+
+// Draw Background
+// drawGrid(); // Uncomment if you wish to see a document grid (for drawing).
 drawWatch();
 
 //// Animation Loop
@@ -62,25 +65,11 @@ function mainLoop(tStart) {
     }
 } // End Loop
 
-//// canvas grid - to make canvas drawing a bit less difficult
-/* for (var i = 1; i <= 20; i++) {
-  if (i % 5 === 0) {
-    ctx.strokeStyle = "aqua";
-  } else {
-    ctx.strokeStyle = "cornflowerblue";
-  }
-  ctx.beginPath();
-  ctx.moveTo(i * 10, 0);
-  ctx.lineTo(i * 10, 200);
-  ctx.stroke();
-  ctx.moveTo(0, i * 10);
-  ctx.lineTo(200, i * 10);
-  ctx.stroke();
-} */
 
 //// draw background
 // --maybe export and copy into canvas? Only watchElements would need to be forewarded-
 function drawWatch() {
+  ctx.globalCompositeOperation = "source-over";
   // Head
   ctx.beginPath();
   ctx.arc(100,40,26,0,2 * Math.PI ,false);
@@ -149,6 +138,11 @@ function drawWatch() {
   ctx.fillStyle = "silver";
   ctx.fill();
 
+  ctx.font = "18px sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillStyle = "mediumslateblue";
+  ctx.fillText(countDown.defaultValue/10+"s", 100, 150);
+
   ctx.beginPath();
   ctx.arc(100,130,2,0,2 * Math.PI ,false);
   ctx.moveTo(100,130);
@@ -156,4 +150,23 @@ function drawWatch() {
   ctx.lineWidth = "2";
   ctx.strokeStyle = "whitesmoke";
   ctx.stroke();
+}
+
+// --OPTIONAL
+// canvas grid - to make canvas drawing a bit less difficult
+function drawGrid(){
+  for (var i = 1; i <= 20; i++) {
+    if (i % 5 === 0) {
+      ctx.strokeStyle = "aqua";
+    } else {
+      ctx.strokeStyle = "cornflowerblue";
+    }
+    ctx.beginPath();
+    ctx.moveTo(i * 10, 0);
+    ctx.lineTo(i * 10, 200);
+    ctx.stroke();
+    ctx.moveTo(0, i * 10);
+    ctx.lineTo(200, i * 10);
+    ctx.stroke();
+  }
 }
