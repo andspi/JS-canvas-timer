@@ -1,25 +1,27 @@
 /* This JS script calls a loop upon request, which controls the timer.
    The timer controls the scripted drawing of an oldschool stopwatch like animation in the selected html canvas.
-   This file is heavily annotated so the intended function of the various parts becomes claar.
+   This file is heavily annotated.
 */
 //// Definitions
 // Set Time
 var countDown = {
   value: 300 };
   // 300 = 30 seconds
-countDown.defaultValue = countDown.value;
 
 // Select the <canvas> element in the html file:
 var timerCanvas = document.getElementById('timercanvas');
 var ctx = timerCanvas.getContext('2d');
 
 //  Variables
+countDown.defaultValue = countDown.value;
 var angleIncrement = ( Math.PI*2 / countDown.defaultValue);
 var watchElements = Math.floor( countDown.defaultValue / 10 );
 var zeroAngle = (-( Math.PI * 1/2 ));
 var tLast = 0;
 var iFrame = 0;
-
+var totalGameTime = 0;
+var tDiff = 0;
+var tInit = 0;
 // The initial Eventlistener. Substitute with whatever Event you need to call the timer.
 timerCanvas.addEventListener('click', function(){window.requestAnimationFrame( mainLoop )}, false);
 
@@ -30,17 +32,22 @@ drawWatch();
 //// Animation Loop
 function mainLoop(tStart) {
     var stopLoop = window.requestAnimationFrame( mainLoop );
-        // Interval 10 Hz
-    if (tStart > (tLast + 100)){
+
+    if (iFrame === 0){tInit = tStart;}
+    if (tStart > (tLast + 100 - tDiff)){ // Interval 10 Hz
       iFrame++;
       // check if its over
       if ( countDown.value <= 0 ) {
           window.cancelAnimationFrame( stopLoop );
+          // log total elapsed time
+          totalGameTime = Math.floor(tStart - tInit) / 1000;
+          logStuff(totalGameTime);
           // Return Value ~ mainLoop hasFinished
           return true;
       } else {
         // Decrease countdown
         countDown.value--;
+        tDiff = tStart - tLast - 100;
         // calculate current digit
         var startDigitAngle = zeroAngle + (angleIncrement * (iFrame ));
         var stopDigitAngle = startDigitAngle;
@@ -59,10 +66,10 @@ function mainLoop(tStart) {
         ctx.strokeStyle = "white";
         ctx.lineWidth = "3";
         ctx.stroke();
-        // How could I fade out the digit trail?
+                // How could I fade out the digit trail? -dont draw a segment. only a trail of ~20 faiding digit lines?
       }
-      tLast = tStart;
     }
+    tLast = tStart;
 } // End Loop
 
 
@@ -169,4 +176,11 @@ function drawGrid(){
     ctx.lineTo(200, i * 10);
     ctx.stroke();
   }
+}
+// log function
+function logStuff(entry) {
+    var logList = document.getElementById('log');
+    var logEntry = document.createElement('li');
+    logList.appendChild(logEntry);
+    logEntry.innerHTML = entry;
 }
