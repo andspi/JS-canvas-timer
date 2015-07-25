@@ -1,77 +1,75 @@
-/* This JS script calls a loop upon request, which controls the timer.
+/* This JS script calls a timer.
    The timer controls the scripted drawing of an oldschool stopwatch like animation in the selected html canvas.
-   This file is heavily annotated.
 */
-//// Definitions
-// Set Time
-var countDown = {
-  value: 300 };
-  // 300 = 30 seconds
+//// Variable Definitions
+// Set Time: 300 = 30 seconds
+var countDown = { default: 100};
 
 // Select the <canvas> element in the html file:
 var timerCanvas = document.getElementById('timercanvas');
-var ctx = timerCanvas.getContext('2d');
 
-//  Variables
-countDown.defaultValue = countDown.value;
-var angleIncrement = ( Math.PI*2 / countDown.defaultValue);
-var watchElements = Math.floor( countDown.defaultValue / 10 );
-var zeroAngle = (-( Math.PI * 1/2 ));
-var tLast = 0;
-var iFrame = 0;
-var totalGameTime = 0;
-var tDiff = 0;
-var tInit = 0;
 // The initial Eventlistener. Substitute with whatever Event you need to call the timer.
-timerCanvas.addEventListener('click', function(){window.requestAnimationFrame( mainLoop )}, false);
+timerCanvas.addEventListener('click', mainLoop, false);
+
+//// Static Code
+//  Variables
+countDown.value = countDown.default;
+var ctx = timerCanvas.getContext('2d');
+var angleIncrement = ( Math.PI*2 / countDown.default);
+var watchElements = Math.floor( countDown.default / 10 );
+var zeroAngle = (-( Math.PI * 1/2 ));
 
 // Draw Background
 // drawGrid(); // Uncomment if you wish to see a document grid (for drawing).
 drawWatch();
 
-//// Animation Loop
-function mainLoop(tStart) {
-    var stopLoop = window.requestAnimationFrame( mainLoop );
+//// Start Loop
+function mainLoop(){
+  var tInit = window.performance.now();
+  timerCanvas.removeEventListener('click', mainLoop, false);
 
-    if (iFrame === 0){tInit = tStart;}
-    if (tStart > (tLast + 100 - tDiff)){ // Interval 10 Hz
-      iFrame++;
-      // check if its over
-      if ( countDown.value <= 0 ) {
-          window.cancelAnimationFrame( stopLoop );
-          // log total elapsed time
-          totalGameTime = Math.floor(tStart - tInit) / 1000;
-          logStuff(totalGameTime);
-          // Return Value ~ mainLoop hasFinished
-          return true;
-      } else {
-        // Decrease countdown
-        countDown.value--;
-        tDiff = tStart - tLast - 100;
-        // calculate current digit
-        var startDigitAngle = zeroAngle + (angleIncrement * (iFrame ));
-        var stopDigitAngle = startDigitAngle;
-        // trail
-        ctx.beginPath();
-        ctx.arc(100,130,43,zeroAngle,startDigitAngle,false);
-        ctx.lineTo(100,130);
-        var overlayColor = "rgb(255,"+(countDown.defaultValue*2 - iFrame*2)+","+(countDown.defaultValue*2 - iFrame*3)+")";
-        ctx.fillStyle = overlayColor;
-        ctx.fill();
-        ctx.globalCompositeOperation = "source-over";
-        // digit
-        ctx.beginPath();
-        ctx.moveTo(100,130);
-        ctx.arc(100,130,42,startDigitAngle,stopDigitAngle, false);
-        ctx.strokeStyle = "white";
-        ctx.lineWidth = "3";
-        ctx.stroke();
-                // How could I fade out the digit trail? -dont draw a segment. only a trail of ~20 faiding digit lines?
-      }
+  function drawDigit(){
+    var i = countDown.default - countDown.value +1;
+    var digitAngle = zeroAngle + (angleIncrement * i );
+
+    // trail
+    ctx.beginPath();
+    ctx.arc(100,130,43,zeroAngle,digitAngle,false);
+    ctx.lineTo(100,130);
+    var overlayColor = "rgb(255,"+(countDown.value*2 - i*2)+","+(countDown.value*2 - i*3)+")";
+    ctx.fillStyle = overlayColor;
+    ctx.fill();
+    ctx.globalCompositeOperation = "source-over";
+    // TODO How could I fade out the digit trail? -dont draw a segment. only a trail of ~20 faiding digit lines?
+
+    // digit
+    ctx.beginPath();
+    ctx.moveTo(100,130);
+    ctx.arc(100,130,42,digitAngle,digitAngle, false);
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = "3";
+    ctx.stroke();
+
+    // increment
+    countDown.value--;
+
+    // end condition and
+    if (countDown.value <= 0){
+      window.clearInterval(cancel);
+      var tEnd = window.performance.now();
+      var totalGameTime = Math.floor( tEnd - tInit ) / 1000;
+      // logStuff(totalGameTime); // optional for validating timing
+      // TODO: Add reset function here, eg:
+      // window.setTimeout(resetWatch(),1000);
+      // Return Value ~ mainLoop hasFinished
+      return true;
     }
-    tLast = tStart;
-} // End Loop
+  }
 
+  // Call interval and save call ID // delay to draw: 100 ms
+  var cancel = window.setInterval(drawDigit, 100);
+}
+// End Loop
 
 //// draw background
 // --maybe export and copy into canvas? Only watchElements would need to be forewarded-
@@ -148,7 +146,7 @@ function drawWatch() {
   ctx.font = "18px sans-serif";
   ctx.textAlign = "center";
   ctx.fillStyle = "mediumslateblue";
-  ctx.fillText(countDown.defaultValue/10+"s", 100, 150);
+  ctx.fillText(countDown.value/10+"s", 100, 150);
 
   ctx.beginPath();
   ctx.arc(100,130,2,0,2 * Math.PI ,false);
