@@ -1,13 +1,14 @@
 /* This JS script calls a timer.
-   The timer controls the scripted drawing of an oldschool stopwatch like animation in the selected html canvas.
-*/
+   The timer controls the scripted drawing of an oldschool stopwatch like animation in the selected html canvas. */
+
+// Begnn scope - IIEF
+(function(){
+
 //// Variable Definitions
 // Set Time: 300 = 30 seconds
 var countDown = { default: 300};
-
 // Select the <canvas> element in the html file:
 var timerCanvas = document.getElementById('timercanvas');
-
 // The initial Eventlistener. Substitute with whatever Event you need to call the timer.
 timerCanvas.addEventListener('click', mainLoop, false);
 
@@ -20,7 +21,7 @@ var watchElements = Math.floor( countDown.default / 10 );
 var zeroAngle = (-( Math.PI * 1/2 ));
 
 // Draw Background
-// drawGrid(); // Uncomment if you wish to see a document grid (for drawing).
+// drawGrid(); // Uncomment if you wish to see the document grid (for drawing).
 drawWatch();
 
 //// Start Loop
@@ -36,7 +37,7 @@ function mainLoop(){
     ctx.beginPath();
     ctx.arc(100,130,43,zeroAngle,digitAngle,false);
     ctx.lineTo(100,130);
-    var overlayColor = "rgb(255,"+(countDown.value*2 - i*2)+","+(countDown.value*2 - i*3)+")";
+    var overlayColor = "rgb(255,"+(countDown.value*3)+","+(countDown.value)+")";
     ctx.fillStyle = overlayColor;
     ctx.fill();
     ctx.globalCompositeOperation = "source-over";
@@ -47,7 +48,7 @@ function mainLoop(){
     ctx.moveTo(100,130);
     ctx.arc(100,130,42,digitAngle,digitAngle, false);
     ctx.strokeStyle = "white";
-    ctx.lineWidth = "3";
+    ctx.lineWidth = 3;
     ctx.stroke();
 
     // increment
@@ -60,7 +61,7 @@ function mainLoop(){
       var totalGameTime = Math.floor( tEnd - tInit ) / 1000;
       // logStuff(totalGameTime); // optional for validating timing
       // TODO: Add reset function here, eg:
-      // window.setTimeout(resetWatch(),1000);
+      window.setTimeout(resetWatch,1500);
       // Return Value ~ mainLoop hasFinished
       return true;
     }
@@ -70,6 +71,14 @@ function mainLoop(){
   var cancel = window.setInterval(drawDigit, 100);
 }
 // End Loop
+
+// reset function
+function resetWatch(){
+  drawWatch();
+  countDown.value = countDown.default;
+  timerCanvas.addEventListener('click', mainLoop, false);
+}
+
 
 //// draw background
 // --maybe export and copy into canvas? Only watchElements would need to be forewarded-
@@ -81,7 +90,7 @@ function drawWatch() {
   ctx.fillStyle = "silver";
   ctx.fill();
   ctx.strokeStyle = "slategrey";
-  ctx.lineWidth = "0";
+  ctx.lineWidth = 0.5;
   ctx.stroke();
 
   ctx.beginPath();
@@ -90,7 +99,7 @@ function drawWatch() {
   ctx.fill();
   ctx.globalCompositeOperation = "source-over";
   ctx.strokeStyle = "dimgrey";
-  ctx.lineWidth = "0";
+  ctx.lineWidth = 0;
   ctx.stroke();
 
   ctx.beginPath();
@@ -119,16 +128,16 @@ function drawWatch() {
   ctx.fillStyle = "silver";
   ctx.fill();
   ctx.strokeStyle = "black";
-  ctx.lineWidth = "0";
+  ctx.lineWidth = 0.5;
   ctx.stroke();
 
   for (var i = 0; i <= watchElements ; i++) {
     if (i % 5 === 0) {
       ctx.strokeStyle = "dimgrey";
-      ctx.lineWidth = "2";
+      ctx.lineWidth = 2;
     } else {
       ctx.strokeStyle = "darkgrey";
-      ctx.lineWidth = "0";
+      ctx.lineWidth = 0;
     }
     ctx.beginPath();
     ctx.moveTo(100,130);
@@ -146,13 +155,13 @@ function drawWatch() {
   ctx.font = "18px sans-serif";
   ctx.textAlign = "center";
   ctx.fillStyle = "mediumslateblue";
-  ctx.fillText(countDown.value/10+"s", 100, 150);
+  ctx.fillText(countDown.default/10+"s", 100, 150);
 
   ctx.beginPath();
   ctx.arc(100,130,2,0,2 * Math.PI ,false);
   ctx.moveTo(100,130);
   ctx.arc(100,130,44,zeroAngle,zeroAngle*1.01,true);
-  ctx.lineWidth = "2";
+  ctx.lineWidth = 2;
   ctx.strokeStyle = "whitesmoke";
   ctx.stroke();
 }
@@ -182,3 +191,5 @@ function logStuff(entry) {
     logList.appendChild(logEntry);
     logEntry.innerHTML = entry;
 }
+
+})(); // End scope - IIFE
