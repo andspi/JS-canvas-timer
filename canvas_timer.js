@@ -3,7 +3,7 @@
 */
 //// Variable Definitions
 // Set Time: 300 = 30 seconds
-var countDown = { default: 100};
+var countDown = { default: 300};
 
 // Select the <canvas> element in the html file:
 var timerCanvas = document.getElementById('timercanvas');
